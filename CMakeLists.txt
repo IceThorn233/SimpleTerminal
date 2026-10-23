@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(SucklessSimpleTerminal VERSION 0.9.3)
 
-find_package(X11 REQUIRED COMPONENTS Xft)
+find_package(X11 REQUIRED COMPONENTS Xft Xrender)
 
 add_executable(st)
 
@@ -35,6 +35,7 @@ target_link_libraries(
     PRIVATE
         X11::X11
         X11::Xft
+        X11::Xrender
         PkgConfig::Fontconfig
         PkgConfig::Freetype2
         m
