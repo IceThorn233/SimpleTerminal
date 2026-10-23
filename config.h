@@ -94,36 +94,37 @@ char *termname = "st-256color";
  *
  *	stty tabs
  */
-unsigned int tabspaces = 8; /* must be > 0 */
+unsigned int tabspaces = 4; /* must be > 0 */
 
 /* bg opacity */
-float alpha = 0.9;
+float alpha = 0.93, alphaUnfocused = 0.6;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
-	/* 8 normal colors */
-	"#5C5F77",
-	"#D20F39",
-	"#40A02B",
-	"#DF8E1D",
-	"#1E66F5",
-	"#EA76CB",
-	"#179299",
-	"#ACB0BE",
+    /* 8 normal colors */
+    "#5C5F77",
+    "#D20F39",
+    "#40A02B",
+    "#DF8E1D",
+    "#1E66F5",
+    "#EA76CB",
+    "#179299",
+    "#ACB0BE",
 
-	/* 8 bright colors */
-	"#6C6F85",
-	"#D20F39",
-	"#40A02B",
-	"#DF8E1D",
-	"#1E66F5",
-	"#EA76CB",
-	"#179299",
-	"#BCC0CC",
+    /* 8 bright colors */
+    "#6C6F85",
+    "#D20F39",
+    "#40A02B",
+    "#DF8E1D",
+    "#1E66F5",
+    "#EA76CB",
+    "#179299",
+    "#BCC0CC",
 
-[256] = "#4C4F69", /* default foreground colour */
-[257] = "#EFF1F5", /* default background colour */
-[258] = "#DC8A78", /*575268*/
+    [256] = "#4C4F69", /* default foreground colour */
+    [257] = "#EFF1F5", /* default background colour */
+    [258] = "#DC8A78", /*575268*/
+    [259] = "#CCD0DA"
 
 };
 
@@ -164,6 +165,7 @@ unsigned int defaultfg = 256;
 unsigned int defaultbg = 257;
 unsigned int defaultcs = 258;
 static unsigned int defaultrcs = 258;
+unsigned int bg = 257, bgUnfocused = 259;
 
 /*
  * Default shape of cursor

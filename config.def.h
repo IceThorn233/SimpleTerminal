@@ -94,10 +94,10 @@ char *termname = "st-256color";
  *
  *	stty tabs
  */
-unsigned int tabspaces = 8; /* must be > 0 */
+unsigned int tabspaces = 4; /* must be > 0 */
 
 /* bg opacity */
-float alpha = 0.8;
+float alpha = 0.93, alphaUnfocused = 0.6;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -134,10 +134,11 @@ static const char *colorname[] = {
  * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor
  */
-unsigned int defaultfg = 258;
-unsigned int defaultbg = 259;
+unsigned int defaultfg = 7;
+unsigned int defaultbg = 0;
 unsigned int defaultcs = 256;
 static unsigned int defaultrcs = 257;
+unsigned int bg = 0, bgUnfocused = 16;
 
 /*
  * Default shape of cursor
