@@ -1,6 +1,7 @@
 /* See LICENSE for license details. */
 
 #include <stdint.h>
+#include <stddef.h>
 #include <sys/types.h>
 
 /* macros */
