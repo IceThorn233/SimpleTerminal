@@ -1,0 +1,90 @@
+---
+Language: Cpp
+
+BasedOnStyle: Microsoft
+
+IndentWidth: 4
+ColumnLimit: 100
+AlignAfterOpenBracket: AlwaysBreak
+AlignOperands: DontAlign
+AlignArrayOfStructures: Left
+AlignEscapedNewlines: DontAlign
+PenaltyReturnTypeOnItsOwnLine: 1024
+PenaltyBreakBeforeFirstCallParameter: 0
+BreakAfterOpenBracketFunction: true
+BreakAfterOpenBracketIf: true
+BreakAfterOpenBracketLoop: true
+BreakAfterOpenBracketSwitch: true
+BreakBeforeCloseBracketBracedList: false
+BreakBeforeCloseBracketFunction: true
+BreakBeforeCloseBracketIf: true
+BreakBeforeCloseBracketLoop: true
+BreakBeforeCloseBracketSwitch: false
+BreakFunctionDefinitionParameters: true
+BracedInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+AllowAllArgumentsOnNextLine: false
+# BreakBeforeBinaryOperators: All
+
+BreakAfterReturnType: None
+UseTab: Never
+IndentWrappedFunctionNames: true
+RequiresExpressionIndentation: OuterScope
+IndentCaseBlocks: false
+IndentCaseLabels: true
+AlwaysBreakAfterReturnType: None
+AlwaysBreakAfterDefinitionReturnType: None
+
+RequiresClausePosition: OwnLine
+
+AccessModifierOffset: -4
+
+SortIncludes: 
+  Enabled: false
+PackParameters:
+  BinPack: OnePerLine
+PackConstructorInitializers: BinPack
+BreakBinaryOperations: OnePerLine
+BinPackParameters: OnePerLine
+BinPackArguments: true
+BinPackLongBracedList: true
+
+BitFieldColonSpacing: None
+BreakBeforeBraces: Custom
+InsertBraces: true
+
+BreakAfterAttributes: Always
+StatementAttributeLikeMacros:
+  - Q_EMIT
+
+# WhitespaceSensitiveMacros:
+#   - OG_MACRO_GNU 
+#   - OG_MACRO_MSVC
+
+AttributeMacros:
+  - __capability
+  - __output
+  - __ununsed
+
+# Macros:
+#   - OG_MACRO_MSVC(x)=x
+#   - OG_MACRO_GNU(x)=x
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: true
+  AfterExternBlock: true
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
