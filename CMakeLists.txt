@@ -50,3 +50,5 @@ add_custom_command(
         "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/config.def.h"
         "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
+install(TARGETS st)
+install(FILES st.desktop DESTINATION "share/applications")
