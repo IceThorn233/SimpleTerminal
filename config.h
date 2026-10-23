@@ -101,43 +101,69 @@ float alpha = 0.9;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
-    /* 8 normal colors */
-    "black",
-    "red3",
-    "green3",
-    "yellow3",
-    "blue2",
-    "magenta3",
-    "cyan3",
-    "gray90",
+	/* 8 normal colors */
+	"#5C5F77",
+	"#D20F39",
+	"#40A02B",
+	"#DF8E1D",
+	"#1E66F5",
+	"#EA76CB",
+	"#179299",
+	"#ACB0BE",
 
-    /* 8 bright colors */
-    "gray50",
-    "red",
-    "green",
-    "yellow",
-    "#5c5cff",
-    "magenta",
-    "cyan",
-    "white",
+	/* 8 bright colors */
+	"#6C6F85",
+	"#D20F39",
+	"#40A02B",
+	"#DF8E1D",
+	"#1E66F5",
+	"#EA76CB",
+	"#179299",
+	"#BCC0CC",
 
-    [255] = 0,
+[256] = "#4C4F69", /* default foreground colour */
+[257] = "#EFF1F5", /* default background colour */
+[258] = "#DC8A78", /*575268*/
 
-    /* more colors can be added after 255 to use with DefaultXX */
-    "#cccccc",
-    "#555555",
-    "gray90", /* default foreground colour */
-    "black",  /* default background colour */
 };
 
+// static const char *colorname[] = {
+//     /* 8 normal colors */
+//     "black",
+//     "red3",
+//     "green3",
+//     "yellow3",
+//     "blue2",
+//     "magenta3",
+//     "cyan3",
+//     "gray90",
+//
+//     /* 8 bright colors */
+//     "gray50",
+//     "red",
+//     "green",
+//     "yellow",
+//     "#5c5cff",
+//     "magenta",
+//     "cyan",
+//     "white",
+//
+//     [255] = 0,
+//
+//     /* more colors can be added after 255 to use with DefaultXX */
+//     "#cccccc",
+//     "#555555",
+//     "gray90", /* default foreground colour */
+//     "black",  /* default background colour */
+// };
+
 /*
- * Default colors (colorname index)
  * foreground, background, cursor, reverse cursor
  */
-unsigned int defaultfg = 258;
-unsigned int defaultbg = 259;
-unsigned int defaultcs = 256;
-static unsigned int defaultrcs = 257;
+unsigned int defaultfg = 256;
+unsigned int defaultbg = 257;
+unsigned int defaultcs = 258;
+static unsigned int defaultrcs = 258;
 
 /*
  * Default shape of cursor
@@ -175,6 +201,21 @@ static unsigned int defaultattr = 11;
  */
 static uint forcemousemod = ShiftMask;
 
+static const char *copyUrl[] = {
+    "/bin/sh", "-c",
+    "sed 's/.*│//g' | tr -d '\n' | grep -aEo "
+    "'(((http|https)://|www\\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./"
+    "&%?#=_-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)'| uniq | sed 's/^www./http:\\/\\/www\\./g' "
+    "| rofi -dmenu -i -p 'Follow which url?' -l 10 | ( [ \"$XDG_SESSION_TYPE\" = wayland ] && "
+    "wl-copy || xsel -b )",
+    "externalpipe", NULL};
+static const char *openUrl[] = {
+    "/bin/sh", "-c",
+    "sed 's/.*│//g' | tr -d '\n' | grep -aEo "
+    "'(((http|https)://|www\\.)[a-zA-Z0-9.]*[:]?[a-zA-Z0-9./"
+    "&%?#=_-]*)|((magnet:\\?xt=urn:btih:)[a-zA-Z0-9]*)'| uniq | sed 's/^www./http:\\/\\/www\\./g' "
+    "| rofi -dmenu -i -p 'Follow which url?' -l 10 | xargs -r xdg-open",
+    "externalpipe", NULL};
 /*
  * Internal mouse shortcuts.
  * Beware that overloading Button1 will disable the selection.
@@ -182,10 +223,12 @@ static uint forcemousemod = ShiftMask;
 static MouseShortcut mshortcuts[] = {
     /* mask                 button   function        argument       release */
     {XK_ANY_MOD, Button2, selpaste, {.i = 0}, 1},
-    {ShiftMask, Button4, ttysend, {.s = "\033[5;2~"}},
-    {XK_ANY_MOD, Button4, ttysend, {.s = "\031"}},
-    {ShiftMask, Button5, ttysend, {.s = "\033[6;2~"}},
-    {XK_ANY_MOD, Button5, ttysend, {.s = "\005"}},
+    // {ShiftMask, Button4, ttysend, {.s = "\033[5;2~"}},
+    // {XK_ANY_MOD, Button4, ttysend, {.s = "\031"}},
+    // {ShiftMask, Button5, ttysend, {.s = "\033[6;2~"}},
+    // {XK_ANY_MOD, Button5, ttysend, {.s = "\005"}},
+    {XK_ANY_MOD, Button4, kscrollup, {.i = 1}},
+    {XK_ANY_MOD, Button5, kscrolldown, {.i = 1}},
 };
 
 /* Internal keyboard shortcuts. */
@@ -194,18 +237,27 @@ static MouseShortcut mshortcuts[] = {
 
 static Shortcut shortcuts[] = {
     /* mask                 keysym          function        argument */
-    {XK_ANY_MOD,  XK_Break,    sendbreak,     {.i = 0} },
-    {ControlMask, XK_Print,    toggleprinter, {.i = 0} },
-    {ShiftMask,   XK_Print,    printscreen,   {.i = 0} },
-    {XK_ANY_MOD,  XK_Print,    printsel,      {.i = 0} },
-    {TERMMOD,     XK_Prior,    zoom,          {.f = +1}},
-    {TERMMOD,     XK_Next,     zoom,          {.f = -1}},
-    {TERMMOD,     XK_Home,     zoomreset,     {.f = 0} },
-    {TERMMOD,     XK_C,        clipcopy,      {.i = 0} },
-    {TERMMOD,     XK_V,        clippaste,     {.i = 0} },
-    {TERMMOD,     XK_Y,        selpaste,      {.i = 0} },
-    {ShiftMask,   XK_Insert,   selpaste,      {.i = 0} },
-    {TERMMOD,     XK_Num_Lock, numlock,       {.i = 0} },
+    {XK_ANY_MOD,  XK_Break,       sendbreak,     {.i = 0}      },
+    {ControlMask, XK_Print,       toggleprinter, {.i = 0}      },
+    {ShiftMask,   XK_Print,       printscreen,   {.i = 0}      },
+    {XK_ANY_MOD,  XK_Print,       printsel,      {.i = 0}      },
+    {TERMMOD,     XK_KP_Subtract, zoom,          {.f = -1}     },
+    {TERMMOD,     XK_minus,       zoom,          {.f = -1}     },
+    {TERMMOD,     0x5f,           zoom,          {.f = -1}     },
+    {TERMMOD,     XK_KP_Equal,    zoom,          {.f = +1}     },
+    {TERMMOD,     XK_plus,        zoom,          {.f = +1}     },
+    {TERMMOD,     XK_Home,        zoomreset,     {.f = 0}      },
+    {TERMMOD,     XK_C,           clipcopy,      {.i = 0}      },
+    {TERMMOD,     XK_V,           clippaste,     {.i = 0}      },
+    {TERMMOD,     XK_Y,           selpaste,      {.i = 0}      },
+    {ShiftMask,   XK_Insert,      selpaste,      {.i = 0}      },
+    {TERMMOD,     XK_Num_Lock,    numlock,       {.i = 0}      },
+    {ShiftMask,   XK_Page_Up,     kscrollup,     {.i = -1}     },
+    {ShiftMask,   XK_Page_Down,   kscrolldown,   {.i = -1}     },
+    {TERMMOD,     XK_K,           kscrollup,     {.i = 1}      },
+    {TERMMOD,     XK_J,           kscrolldown,   {.i = 1}      },
+    {TERMMOD,     XK_U,           externalpipe,  {.v = copyUrl}},
+    {TERMMOD,     XK_O,           externalpipe,  {.v = openUrl}},
 };
 
 /*
