@@ -5,7 +5,7 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Xiaolai Mono:size=13";
+static char *font = "Iosevka:size=12:fontfeatures=ss20=1:fontfeatures=ss02=1";
 static char *font2[] = {
     "CEF Fonts CJK Mono:size=14", "LXGW WenKai Mono:size=14", "Symbols Nerd Font:size=12"};
 
@@ -97,7 +97,7 @@ char *termname = "st-256color";
 unsigned int tabspaces = 4; /* must be > 0 */
 
 /* bg opacity */
-float alpha = 0.83, alphaUnfocused = 0.6;
+float alpha = 1, alphaUnfocused = 1;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -122,19 +122,21 @@ static const char *colorname[] = {
     "#BCC0CC",
 
     [256] = "#4C4F69", /* default foreground colour */
-    [257] = "#E1E2E6", /* default background colour */
+    [257] = "#EFF1F5", /* default background colour */
     [258] = "#DC8A78", /*575268*/
-    [259] = "#CCD0DA"
-
 };
+
 /*
  * foreground, background, cursor, reverse cursor
  */
 unsigned int defaultfg = 256;
 unsigned int defaultbg = 257;
+// unsigned int defaultfg = 7;
+// unsigned int defaultbg = 0;
 unsigned int defaultcs = 258;
 static unsigned int defaultrcs = 258;
-unsigned int bg = 257, bgUnfocused = 259;
+// unsigned int bg = 0, bgUnfocused = 16;
+unsigned int bg = 257, bgUnfocused = 257;
 
 /*
  * Default shape of cursor
