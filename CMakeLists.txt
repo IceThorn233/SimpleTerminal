@@ -49,11 +49,11 @@ target_link_libraries(
 target_compile_definitions(
     st PRIVATE "_XOPEN_SOURCE=600" "VERSION=\"${PROJECT_VERSION}\"")
 
-add_custom_command(
-    OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
-    COMMAND "${CMAKE_COMMAND}" -E copy
-            "${CMAKE_CURRENT_SOURCE_DIR}/config.def.h"
-            "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+# add_custom_command(
+#     OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
+#     COMMAND "${CMAKE_COMMAND}" -E copy
+#             "${CMAKE_CURRENT_SOURCE_DIR}/config.def.h"
+#             "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 install(TARGETS st)
 install(FILES st.desktop DESTINATION "share/applications")
