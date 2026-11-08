@@ -2557,6 +2557,30 @@ void csihandle(
         case 't': /* XTWINOPS -- Window manipulation */
             switch (csiescseq.arg[0])
             {
+                case 22: /* pust current title on stack */
+                    switch (csiescseq.arg[1])
+                    {
+                        case 0:
+                        case 1:
+                        case 2:
+                            xpushtitle();
+                            break;
+                        default:
+                            goto unknown;
+                    }
+                    break;
+                case 23: /* pop last title from stack */
+                    switch (csiescseq.arg[1])
+                    {
+                        case 0:
+                        case 1:
+                        case 2:
+                            xsettitle(NULL, 1);
+                            break;
+                        default:
+                            goto unknown;
+                    }
+                    break;
                 case 14: /* Report text area size in pixels. */
                     len = snprintf(buf, sizeof(buf), "\033[4;%i;%it", term.pixh, term.pixw);
                     ttywrite(buf, len, 0);
@@ -2572,6 +2596,7 @@ void csihandle(
                     len = snprintf(buf, sizeof(buf), "\033[8;%i;%it", term.row, term.col);
                     ttywrite(buf, len, 0);
                     break;
+
                 default:
                     goto unknown;
             }
@@ -2683,7 +2708,7 @@ void strhandle(
                 case 0:
                     if (narg > 1)
                     {
-                        xsettitle(strescseq.args[1]);
+                        xsettitle(strescseq.args[1], 0);
                         xseticontitle(strescseq.args[1]);
                     }
                     return;
@@ -2696,7 +2721,7 @@ void strhandle(
                 case 2:
                     if (narg > 1)
                     {
-                        xsettitle(strescseq.args[1]);
+                        xsettitle(strescseq.args[1], 0);
                     }
                     return;
                 case 52: /* manipulate selection data */
@@ -2795,7 +2820,7 @@ void strhandle(
             }
             break;
         case 'k': /* old title set compatibility */
-            xsettitle(strescseq.args[0]);
+            xsettitle(strescseq.args[0], 0);
             return;
         // case 'P': /* DCS -- Device Control String */
         case '_': /* APC -- Application Program Command */
@@ -3332,6 +3357,7 @@ int eschandle(
             treset();
             resettitle();
             xloadcols();
+            xfreetitlestack();
             xsetmode(0, MODE_HIDE);
             xsetmode(0, MODE_BRCKTPASTE);
             break;
@@ -3787,7 +3813,7 @@ void resettitle(
     void
 )
 {
-    xsettitle(NULL);
+    xsettitle(NULL, 0);
 }
 
 void drawregion(
