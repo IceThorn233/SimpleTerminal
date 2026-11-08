@@ -15,20 +15,23 @@ add_executable(st)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.31)
     cmake_pkg_config(IMPORT fontconfig REQUIRED NAME Fontconfig)
     cmake_pkg_config(IMPORT freetype2 REQUIRED NAME Freetype2)
+    cmake_pkg_config(IMPORT zlib REQUIRED NAME Zlib)
+    cmake_pkg_config(IMPORT imlib2 REQUIRED NAME Imlib2)
 else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(Fontconfig REQUIRED IMPORTED_TARGET fontconfig)
     pkg_check_modules(Freetype2 REQUIRED IMPORTED_TARGET freetype2)
+    pkg_check_modules(Zlib REQUIRED IMPORTED_TARGET zlib)
+    pkg_check_modules(Imlib2 REQUIRED IMPORTED_TARGET imlib2)
 endif()
 
-target_sources(st PRIVATE st.c x.c)
+target_sources(st PRIVATE st.c x.c rowcolumn_diacritics_helpers.c graphics.c)
 if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.1)
     target_sources(
         st
         PRIVATE
-        FILE_SET
-            HEADERS FILES st.h win.h arg.h
-            "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+        FILE_SET HEADERS
+            FILES st.h win.h arg.h "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 endif()
 target_link_libraries(
     st
@@ -38,18 +41,19 @@ target_link_libraries(
         X11::Xrender
         PkgConfig::Fontconfig
         PkgConfig::Freetype2
+        PkgConfig::Zlib
+        PkgConfig::Imlib2
         m
         rt
         util)
 target_compile_definitions(
-    st
-    PRIVATE "_XOPEN_SOURCE=600" "VERSION=\"${PROJECT_VERSION}\"")
+    st PRIVATE "_XOPEN_SOURCE=600" "VERSION=\"${PROJECT_VERSION}\"")
 
 add_custom_command(
     OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/config.h"
-    COMMAND
-        "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_SOURCE_DIR}/config.def.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
+    COMMAND "${CMAKE_COMMAND}" -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/config.def.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/config.h")
 
 install(TARGETS st)
 install(FILES st.desktop DESTINATION "share/applications")

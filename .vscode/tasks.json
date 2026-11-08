@@ -1,0 +1,19 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "CMake Configuration(Preset:unix-gnu-all)",
+            "command": "cmake",
+            "args": [
+                "-S",
+                "${workspaceFolder}",
+                "-B",
+                "${workspaceFolder}/build",
+                "--preset",
+                "unix-gnu-all"
+            ],
+            "isBackground": false
+        }
+    ],
+    "version": "2.0.0"
+}
