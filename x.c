@@ -1783,7 +1783,16 @@ int xmakeglyphfontspecs(
         }
 
         /* Lookup character index with default font. */
-        glyphidx = XftCharIndex(xw.dpy, font->match, rune);
+        if (mode & ATTR_BOXDRAW)
+        {
+            /* minor shoehorning: boxdraw uses only this ushort */
+            glyphidx = boxdrawindex(&glyphs[i]);
+        }
+        else
+        {
+            /* Lookup character index with default font. */
+            glyphidx = XftCharIndex(xw.dpy, font->match, rune);
+        }
         if (glyphidx)
         {
             specs[numspecs].font = font->match;
@@ -2156,7 +2165,15 @@ void xdrawglyphfontspecs(
         }
     }
     /* Render the glyphs. */
-    XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
+    if (base.mode & ATTR_BOXDRAW)
+    {
+        drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
+    }
+    else
+    {
+        /* Render the glyphs. */
+        XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
+    }
 
     /* Render strikethrough. Alway use the fg color. */
     if (base.mode & ATTR_STRUCK)
@@ -2213,7 +2230,7 @@ void xdrawcursor(
     /*
      * Select the right color for the right mode.
      */
-    g.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE;
+    g.mode &= ATTR_BOLD | ATTR_ITALIC | ATTR_UNDERLINE | ATTR_STRUCK | ATTR_WIDE | ATTR_BOXDRAW;
 
     if (IS_SET(MODE_REVERSE))
     {

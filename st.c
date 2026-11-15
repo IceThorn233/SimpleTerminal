@@ -1689,6 +1689,10 @@ void tsetchar(
     term.dirty[y] = 1;
     line[x] = *attr;
     line[x].u = u;
+    if (isboxdraw(u))
+    {
+        line[x].mode |= ATTR_BOXDRAW;
+    }
     if (u == IMAGE_PLACEHOLDER_CHAR || u == IMAGE_PLACEHOLDER_CHAR_OLD)
     {
         line[x].u = 0;
