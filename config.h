@@ -5,11 +5,15 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "monofur:size=13";
+static char *font = "Fantasque Sans Mono:size=12";
 static char *font2[] = {
-    "CEF Fonts CJK Mono:size=13",
-    "Symbols Nerd Font:size=13", "CEF Fonts CJK Mono:size=13", "LXGW WenKai Mono:size=13",
-    "Iosevka:size=12",           "Noto Color Emoji:size=13",   "Noto Sans Mono CJK SC:size=13",
+    "Symbols Nerd Font:size=12",
+    "FantasqueSansM Nerd Font Mono:size=12",
+    "CEF Fonts CJK Mono:size=12",
+    "LXGW WenKai Mono:size=12",
+    "Iosevka:size=12",
+    "Noto Color Emoji:size=12",
+    "Noto Sans Mono CJK SC:size=12",
 };
 
 static int borderpx = 2;
@@ -18,8 +22,8 @@ static int borderpx = 2;
  * doesn't perfectly match the size of the window. The values are percentages.
  * 50 means center, 0 means flush left/top, 100 means flush right/bottom.
  */
-static int anysize_halign = 50;
-static int anysize_valign = 50;
+static int anysize_halign = 20;
+static int anysize_valign = 20;
 
 /*
  * What program is execed by st depends of these precedence rules:
@@ -40,7 +44,7 @@ char *stty_args = "stty raw pass8 nl -echo -iexten -cstopb 38400";
 char *vtiden = "\033[?62c";
 
 /* Kerning / character bounding-box multipliers */
-static float cwscale = 1.0;
+static float cwscale = 1.1;
 static float chscale = 1.0;
 
 /*
@@ -48,7 +52,7 @@ static float chscale = 1.0;
  *
  * More advanced example: L" `'\"()[]{}"
  */
-wchar_t *worddelimiters = L" ";
+wchar_t *worddelimiters = L" `'\"()[]{}";
 
 /* selection timeouts (in milliseconds) */
 static unsigned int doubleclicktimeout = 300;
@@ -119,7 +123,7 @@ char *termname = "xterm-kitty";
 unsigned int tabspaces = 4; /* must be > 0 */
 
 /* bg opacity */
-float alpha = 0.93, alphaUnfocused = 0.6;
+float alpha = 0.5, alphaUnfocused = 0.5;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -144,7 +148,8 @@ static const char *colorname[] = {
     "#BCC0CC",
 
     [256] = "#4C4F69", /* default foreground colour */
-    [257] = "#EFF1F5", /* default background colour */
+    // [257] = "#EFF1F5", /* default background colour */
+    [257] = "#DCE0E8", /* default background colour */
     [258] = "#DC8A78", /*575268*/
 };
 
@@ -220,13 +225,13 @@ static uint forcemousemod = ShiftMask;
 
 static const char *copyUrl[] = {
     "/bin/sh", "-c",
-    "grep -oE '((http(s)?|ftp(s)?}|file(s)?|git)://|www)[a-zA-Z0-9./@$&%?$\\#=_~+\\\\-]*' "
+    "grep -aoE '((http(s)?|ftp(s)?}|file(s)?|git)://|www)[a-zA-Z0-9./@$&%?$\\#=_~+\\\\-]*' "
     "| rofi -dmenu -i -p 'Follow which url?' -l 10 "
-    "| ( [ \"$XDG_SESSION_TYPE\" = wayland ] && wl-copy || xsel -b )",
+    "| ( [ \"$XDG_SESSION_TYPE\" = wayland ] && wl-copy -n || xsel -b --trim )",
     "externalpipe", NULL};
 static const char *openUrl[] = {
     "/bin/sh", "-c",
-    "grep -oE '((http(s)?|ftp(s)?}|file(s)?|git)://|www)[a-zA-Z0-9./@$&%?$\\#=_~+\\\\-]*' "
+    "grep -aoE '((http(s)?|ftp(s)?}|file(s)?|git)://|www)[a-zA-Z0-9./@$&%?$\\#=_~+\\\\-]*' "
     " | rofi -dmenu -i -p 'Follow which url?' -l 10"
     " | xargs -r xdg-open",
     "externalpipe", NULL};

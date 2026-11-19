@@ -3868,7 +3868,8 @@ void draw(
     if (TSCREEN.off == 0)
     {
         xdrawcursor(
-            cx, term.c.y, TLINE(term.c.y)[cx], term.ocx, term.ocy, TLINE(term.ocy)[term.ocx]
+            cx, term.c.y, TLINE(term.c.y)[cx], term.ocx, term.ocy, TLINE(term.ocy)[term.ocx],
+            TLINE(term.ocy), term.col
         );
     }
     term.ocx = cx;
