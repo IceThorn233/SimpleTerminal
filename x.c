@@ -74,7 +74,7 @@ static void unloadimages(const Arg *);
 static void toggleimages(const Arg *);
 void kscrollup(const Arg *);
 void kscrolldown(const Arg *);
-
+void XLoadSpareFontsForZoom(const Arg *const);
 /* config.h for applying patches and the configuration. */
 #include "config.h"
 
@@ -349,7 +349,8 @@ void zoomabs(
 {
     xunloadfonts();
     xloadfonts(usedfont, arg->f);
-    xloadsparefonts();
+    XLoadSpareFontsForZoom(arg);
+    // xloadsparefonts();
     cresize(0, 0);
     redraw();
     xhints();
@@ -1255,6 +1256,8 @@ int xloadfont(
 
     f->height = f->ascent + f->descent;
     f->width = DIVCEIL(extents.xOff, strlen(ascii_printable));
+    // f->width =
+    //     DIVCEIL(extents.xOff > 18 ? extents.xOff / 3 : extents.xOff, strlen(ascii_printable));
 
     return 0;
 }
@@ -1381,7 +1384,129 @@ int xloadsparefont(
 
     return 0;
 }
+/* 同时缩放所有字体 */
+void XLoadSpareFontsForZoom(
+    const Arg *const pa
+)
+{
+    FcPattern *pattern;
+    double sizeshift, fontval, fontsize = (*pa).f;
+    int fc;
+    char **fp;
+    const char *pcsCurrentFont = NULL;
 
+    if (frclen != 0)
+    {
+        die("can't embed spare fonts. cache isn't empty");
+    }
+
+    /* Calculate count of spare fonts */
+    fc = sizeof(font2) / sizeof(*font2);
+    if (fc == 0)
+    {
+        return;
+    }
+
+    /* Allocate memory for cache entries. */
+    if (frccap < 4 * fc)
+    {
+        frccap += 4 * fc - frccap;
+        frc = xrealloc(frc, frccap * sizeof(Fontcache));
+    }
+
+    for (fp = font2; fp - font2 < fc; ++fp)
+    {
+        pcsCurrentFont = *fp;
+        if (*pcsCurrentFont == '-')
+        {
+            pattern = XftXlfdParse(pcsCurrentFont, False, False);
+        }
+        else
+        {
+            pattern = FcNameParse((FcChar8 *)pcsCurrentFont);
+        }
+
+        if (!pattern)
+        {
+            die("can't open spare font %s\n", *fp);
+        }
+
+        if (defaultfontsize > 0)
+        {
+
+            FcPatternDel(pattern, FC_PIXEL_SIZE);
+            FcPatternDel(pattern, FC_SIZE);
+            FcPatternAddDouble(pattern, FC_PIXEL_SIZE, (double)fontsize);
+            usedfontsize = fontsize;
+            // sizeshift = usedfontsize - defaultfontsize;
+            // if (sizeshift !=
+            //     0 &&
+            //     FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) == FcResultMatch)
+            // {
+            //     fontval += sizeshift;
+            //     FcPatternDel(pattern, FC_PIXEL_SIZE);
+            //     FcPatternDel(pattern, FC_SIZE);
+            //     FcPatternAddDouble(pattern, FC_PIXEL_SIZE, fontval);
+            // }
+        }
+        else
+        {
+            if (FcPatternGetDouble(pattern, FC_PIXEL_SIZE, 0, &fontval) == FcResultMatch)
+            {
+                usedfontsize = fontval;
+            }
+            else if (FcPatternGetDouble(pattern, FC_SIZE, 0, &fontval) == FcResultMatch)
+            {
+                usedfontsize = -1;
+            }
+            else
+            {
+                /*
+                 * Default font size is 12, if none given. This is to
+                 * have a known usedfontsize value.
+                 */
+                FcPatternAddDouble(pattern, FC_PIXEL_SIZE, 12);
+                usedfontsize = 12;
+            }
+            if (defaultfontsize <= 0 && fontsize == 0)
+            {
+                defaultfontsize = usedfontsize;
+            }
+        }
+        // FcPatternAddBool(pattern, FC_SCALABLE, 1);
+        //
+        // FcConfigSubstitute(NULL, pattern, FcMatchPattern);
+        // XftDefaultSubstitute(xw.dpy, xw.scr, pattern);
+
+        if (xloadsparefont(pattern, FRC_NORMAL))
+        {
+            die("can't open spare font %s\n", *fp);
+        }
+
+        FcPatternDel(pattern, FC_SLANT);
+        FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ITALIC);
+        if (xloadsparefont(pattern, FRC_ITALIC))
+        {
+            die("can't open spare font %s\n", *fp);
+        }
+
+        FcPatternDel(pattern, FC_WEIGHT);
+        FcPatternAddInteger(pattern, FC_WEIGHT, FC_WEIGHT_BOLD);
+        if (xloadsparefont(pattern, FRC_ITALICBOLD))
+        {
+            die("can't open spare font %s\n", *fp);
+        }
+
+        FcPatternDel(pattern, FC_SLANT);
+        FcPatternAddInteger(pattern, FC_SLANT, FC_SLANT_ROMAN);
+        if (xloadsparefont(pattern, FRC_BOLD))
+        {
+            die("can't open spare font %s\n", *fp);
+        }
+
+        FcPatternDestroy(pattern);
+    }
+}
 void xloadsparefonts(
     void
 )
