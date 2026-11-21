@@ -166,10 +166,17 @@ typedef struct
     GC gc;
 } DC;
 
+enum DrawOption
+{
+    DrawOptionBackground = 0x00000001,
+    DrawOptionForeground = 0x00000002,
+};
 static inline ushort sixd_to_16bit(int);
 static void xresetfontsettings(ushort mode, Font **font, int *frcflags);
 static int xmakeglyphfontspecs(XftGlyphFontSpec *, const Glyph *, int, int, int);
-static void xdrawglyphfontspecs(const XftGlyphFontSpec *, Glyph, int, int, int, int);
+static void xdrawglyphfontspecs(
+    const XftGlyphFontSpec *, Glyph, int, int, int, int, enum DrawOption
+);
 static void xdrawglyph(Glyph, int, int);
 static void xdrawimages(Glyph, Line, int x1, int y1, int x2);
 static void xdrawoneimagecell(Glyph, int x, int y);
@@ -2083,7 +2090,13 @@ static void xdrawundercurl(
 }
 
 void xdrawglyphfontspecs(
-    const XftGlyphFontSpec *specs, Glyph base, int len, int x, int y, int charlen
+    const XftGlyphFontSpec *specs,
+    Glyph base,
+    int len,
+    int x,
+    int y,
+    int charlen,
+    enum DrawOption opts
 )
 {
     // int charlen = len * ((base.mode & ATTR_WIDE) ? 2 : 1);
@@ -2200,39 +2213,43 @@ void xdrawglyphfontspecs(
         fg = bg;
     }
 
-    /* Intelligent cleaning up of the borders. */
-    if (x == 0)
+    if (opts & DrawOptionBackground)
     {
-        xclear(
-            0, (y == 0) ? 0 : winy, win.hborderpx,
-            winy + win.ch + ((winy + win.ch >= win.vborderpx + win.th) ? win.h : 0)
-        );
-    }
-    if (winx + width >= win.hborderpx + win.tw)
-    {
-        xclear(
-            winx + width, (y == 0) ? 0 : winy, win.w,
-            ((winy + win.ch >= win.vborderpx + win.th) ? win.h : (winy + win.ch))
-        );
-    }
-    if (y == 0)
-    {
-        xclear(winx, 0, winx + width, win.vborderpx);
-    }
-    if (winy + win.ch >= win.vborderpx + win.th)
-    {
-        xclear(winx, winy + win.ch, winx + width, win.h);
+
+        /* Intelligent cleaning up of the borders. */
+        if (x == 0)
+        {
+            xclear(
+                0, (y == 0) ? 0 : winy, win.hborderpx,
+                winy + win.ch + ((winy + win.ch >= win.vborderpx + win.th) ? win.h : 0)
+            );
+        }
+        if (winx + width >= win.hborderpx + win.tw)
+        {
+            xclear(
+                winx + width, (y == 0) ? 0 : winy, win.w,
+                ((winy + win.ch >= win.vborderpx + win.th) ? win.h : (winy + win.ch))
+            );
+        }
+        if (y == 0)
+        {
+            xclear(winx, 0, winx + width, win.vborderpx);
+        }
+        if (winy + win.ch >= win.vborderpx + win.th)
+        {
+            xclear(winx, winy + win.ch, winx + width, win.h);
+        }
+
+        /* Clean up the region we want to draw to. */
+        XftDrawRect(xw.draw, bg, winx, winy, width, win.ch);
     }
 
-    /* Clean up the region we want to draw to. */
-    XftDrawRect(xw.draw, bg, winx, winy, width, win.ch);
-
-    /* Set the clip region because Xft is sometimes dirty. */
-    r.x = 0;
-    r.y = 0;
-    r.height = win.ch;
-    r.width = width;
-    XftDrawSetClipRectangles(xw.draw, winx, winy, &r, 1);
+    // /* Set the clip region because Xft is sometimes dirty. */
+    // r.x = 0;
+    // r.y = 0;
+    // r.height = win.ch;
+    // r.width = width;
+    // XftDrawSetClipRectangles(xw.draw, winx, winy, &r, 1);
 
     // /* Render the glyphs. */
     // XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
@@ -2305,25 +2322,29 @@ void xdrawglyphfontspecs(
             XftDrawRect(xw.draw, &decor, winx, liney, width, thick);
         }
     }
-    /* Render the glyphs. */
-    if (base.mode & ATTR_BOXDRAW)
+    if (DrawOptionForeground)
     {
-        drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
-    }
-    else
-    {
+
         /* Render the glyphs. */
-        XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
-    }
+        if (base.mode & ATTR_BOXDRAW)
+        {
+            drawboxes(winx, winy, width / len, win.ch, fg, bg, specs, len);
+        }
+        else
+        {
+            /* Render the glyphs. */
+            XftDrawGlyphFontSpec(xw.draw, fg, specs, len);
+        }
 
-    /* Render strikethrough. Alway use the fg color. */
-    if (base.mode & ATTR_STRUCK)
-    {
-        XftDrawRect(xw.draw, fg, winx, winy + 2 * dc.font.ascent / 3, width, thick);
-    }
+        /* Render strikethrough. Alway use the fg color. */
+        if (base.mode & ATTR_STRUCK)
+        {
+            XftDrawRect(xw.draw, fg, winx, winy + 2 * dc.font.ascent / 3, width, thick);
+        }
 
-    /* Reset clip to none. */
-    XftDrawSetClip(xw.draw, 0);
+        /* Reset clip to none. */
+        XftDrawSetClip(xw.draw, 0);
+    }
 }
 
 void xdrawglyph(
@@ -2334,7 +2355,10 @@ void xdrawglyph(
     XftGlyphFontSpec *specs = xw.specbuf;
 
     numspecs = xmakeglyphfontspecs(specs, &g, 1, x, y);
-    xdrawglyphfontspecs(specs, g, numspecs, x, y, (g.mode & ATTR_WIDE) ? 2 : 1);
+    xdrawglyphfontspecs(
+        specs, g, numspecs, x, y, (g.mode & ATTR_WIDE) ? 2 : 1,
+        DrawOptionBackground | DrawOptionForeground
+    );
     if (g.mode & ATTR_IMAGE)
     {
         gr_start_drawing(xw.buf, win.cw, win.ch);
@@ -2737,8 +2761,8 @@ int xstartdraw(
     return IS_SET(MODE_VISIBLE);
 }
 
-void xdrawline(
-    Line line, int x1, int y1, int x2
+void pvXDrawLine(
+    Line line, int x1, int y1, int x2, enum DrawOption drawOption
 )
 {
     int i, x, ox, numspecs;
@@ -2761,7 +2785,7 @@ void xdrawline(
         if ((i > 0) && ATTRCMP(base, new))
         {
             numspecs = xmakeglyphfontspecs(specs, &line[ox], x - ox, ox, y1);
-            xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x - ox);
+            xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x - ox, drawOption);
             i = 0;
             if (base.mode & ATTR_IMAGE)
             {
@@ -2778,8 +2802,16 @@ void xdrawline(
     if (i > 0)
     {
         numspecs = xmakeglyphfontspecs(specs, &line[ox], x2 - ox, ox, y1);
-        xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x2 - ox);
+        xdrawglyphfontspecs(specs, base, numspecs, ox, y1, x2 - ox, drawOption);
     }
+}
+
+void xdrawline(
+    Line line, int x1, int y1, int x2
+)
+{
+    pvXDrawLine(line, x1, y1, x2, DrawOptionBackground);
+    pvXDrawLine(line, x1, y1, x2, DrawOptionForeground);
 }
 
 void xfinishdraw(

@@ -5,15 +5,15 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Fantasque Sans Mono:size=12";
+static char *font = "Fantasque Sans Mono:size=13";
 static char *font2[] = {
-    "Symbols Nerd Font:size=12",
-    "FantasqueSansM Nerd Font Mono:size=12",
-    "CEF Fonts CJK Mono:size=12",
-    "LXGW WenKai Mono:size=12",
-    "Iosevka:size=12",
-    "Noto Color Emoji:size=12",
-    "Noto Sans Mono CJK SC:size=12",
+    "Symbols Nerd Font:size=13",
+    "FantasqueSansM Nerd Font Mono:size=13",
+    "CEF Fonts CJK Mono:size=13",
+    "LXGW WenKai Mono:size=13",
+    "Iosevka:size=13",
+    "Noto Color Emoji:size=13",
+    "Noto Sans Mono CJK SC:size=13",
 };
 
 static int borderpx = 2;
@@ -123,7 +123,7 @@ char *termname = "xterm-kitty";
 unsigned int tabspaces = 4; /* must be > 0 */
 
 /* bg opacity */
-float alpha = 0.5, alphaUnfocused = 0.5;
+float alpha = 0.75, alphaUnfocused = 0.75;
 
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
@@ -149,7 +149,8 @@ static const char *colorname[] = {
 
     [256] = "#4C4F69", /* default foreground colour */
     // [257] = "#EFF1F5", /* default background colour */
-    [257] = "#DCE0E8", /* default background colour */
+    // [257] = "#DCE0E8", /* default background colour */
+    [257] = "#B5BAC0", /* default background colour */
     [258] = "#DC8A78", /*575268*/
 };
 
